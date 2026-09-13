@@ -265,6 +265,8 @@ GameObject:
   - component: {fileID: 78574306408411158}
   - component: {fileID: 1074842566759743888}
   - component: {fileID: 6565992232577929696}
+  - component: {fileID: 6845533191761011459}
+  - component: {fileID: 8087139300655978515}
   m_Layer: 0
   m_Name: PlayerAvatar
   m_TagString: Untagged
@@ -301,7 +303,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 2049404143
+  GlobalObjectIdHash: 2421704787
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -325,10 +327,42 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e96cb6065543e43c4a752faaa1468eb1, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.Components.NetworkTransform
+  ShowTopMostFoldoutHeaderGroup: 1
+  NetworkTransformExpanded: 0
+  AutoOwnerAuthorityTickOffset: 1
+  PositionInterpolationType: 0
+  RotationInterpolationType: 0
+  ScaleInterpolationType: 0
+  PositionLerpSmoothing: 1
+  PositionMaxInterpolationTime: 0.1
+  RotationLerpSmoothing: 1
+  RotationMaxInterpolationTime: 0.1
+  ScaleLerpSmoothing: 1
+  ScaleMaxInterpolationTime: 0.1
   AuthorityMode: 1
+  TickSyncChildren: 0
+  UseUnreliableDeltas: 0
+  SyncPositionX: 1
+  SyncPositionY: 1
+  SyncPositionZ: 1
+  SyncRotAngleX: 1
+  SyncRotAngleY: 1
+  SyncRotAngleZ: 1
+  SyncScaleX: 1
+  SyncScaleY: 1
+  SyncScaleZ: 1
+  PositionThreshold: 0.001
+  RotAngleThreshold: 0.01
+  ScaleThreshold: 0.01
+  UseQuaternionSynchronization: 0
+  UseQuaternionCompression: 0
+  UseHalfFloatPrecision: 0
+  InLocalSpace: 0
+  SwitchTransformSpaceWhenParented: 0
   Interpolate: 1
+  SlerpPosition: 0
 --- !u!114 &5818675873860807866
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -379,8 +413,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c068df1ba13e9dc46ab9baff7eda16a5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Roguewolf.Runtime::Roguewolf.PlayerMovement
+  ShowTopMostFoldoutHeaderGroup: 1
   _playerInputHandler: {fileID: 6565992232577929696}
   _characterController: {fileID: 78574306408411158}
+  _maxSpeed: 6
+  _accelerationTime: 0.15
+  _decelerationTime: 0.1
 --- !u!114 &6565992232577929696
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -393,5 +431,39 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9f5a1d4573cb62b4889f5858105a33d1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Roguewolf.Runtime::Roguewolf.PlayerInputHandler
+  ShowTopMostFoldoutHeaderGroup: 1
   _moveActionReference: {fileID: -1680190386980627800, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   _jumpActionReference: {fileID: -2099379676528639254, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  _lookActionReference: {fileID: -5630151704836100654, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+--- !u!114 &6845533191761011459
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9140122929364127278}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c3afa4935527b43418e2438c9e52b55e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Roguewolf.Runtime::Roguewolf.PlayerLook
+  ShowTopMostFoldoutHeaderGroup: 1
+  _playerInputHandler: {fileID: 6565992232577929696}
+  _cameraTransform: {fileID: 9191243959325162542}
+  _mouseSensitivity: 0.1
+  _maxPitch: 89
+--- !u!114 &8087139300655978515
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9140122929364127278}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0dc33f7443b3e1e418332d2f23d2ff3e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Roguewolf.Runtime::Roguewolf.OwnerCameraRig
+  ShowTopMostFoldoutHeaderGroup: 1
+  _camera: {fileID: 8454370628461904355}
+  _audioListener: {fileID: 0}

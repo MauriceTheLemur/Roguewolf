@@ -9,10 +9,14 @@ namespace Roguewolf
     {
         [SerializeField] private InputActionReference _moveActionReference;
         [SerializeField] private InputActionReference _jumpActionReference;
+        [SerializeField] private InputActionReference _lookActionReference;
 
         public event Action<Vector2> OnMovePerformed;
         public event Action<Vector2> OnMoveCancelled;
         public event Action<float> OnJump;
+
+        public event Action<Vector2> OnLookPerformed;
+        public event Action<Vector2> OnLookCancelled;
 
         /// <summary>
         /// Binding happens here rather than in OnEnable/OnDisable, and only for the owner.
@@ -39,6 +43,11 @@ namespace Roguewolf
             _jumpActionReference.action.Enable();
             _jumpActionReference.action.performed += ProcessOnJump;
             _jumpActionReference.action.canceled += ProcessOnJump;
+            
+            _lookActionReference.action.Enable();
+            _lookActionReference.action.performed += ProcessOnLook;
+            _lookActionReference.action.canceled += ProcessOnLook;
+            
         }
 
         public override void OnNetworkDespawn()
@@ -53,6 +62,10 @@ namespace Roguewolf
             _jumpActionReference.action.performed -= ProcessOnJump;
             _jumpActionReference.action.canceled -= ProcessOnJump;
             _jumpActionReference.action.Disable();
+            
+            _lookActionReference.action.performed -= ProcessOnLook;
+            _lookActionReference.action.canceled -= ProcessOnLook;
+            _lookActionReference.action.Disable();
         }
 
         private void ProcessOnMove(InputAction.CallbackContext context)
@@ -66,6 +79,21 @@ namespace Roguewolf
                     break;
                 case InputActionPhase.Canceled:
                     OnMoveCancelled?.Invoke(moveInput);
+                    break;
+            }
+        }
+
+        private void ProcessOnLook(InputAction.CallbackContext context)
+        {
+            Vector2 lookInput = context.ReadValue<Vector2>();
+
+            switch (context.phase)
+            {
+                case InputActionPhase.Performed:
+                    OnLookPerformed?.Invoke(lookInput);
+                    break;
+                case InputActionPhase.Canceled:
+                    OnLookCancelled?.Invoke(lookInput);
                     break;
             }
         }
