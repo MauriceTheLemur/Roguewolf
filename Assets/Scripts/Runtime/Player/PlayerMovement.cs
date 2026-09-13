@@ -30,8 +30,6 @@ namespace Roguewolf
         {
             enabled = IsOwner;
         }
-        
-        
 
         private void FixedUpdate()
         {
@@ -44,7 +42,8 @@ namespace Roguewolf
 
         private void MovePlayer(Vector2 moveInput)
         {
-            Vector3 movement = new Vector3(moveInput.x, 0, moveInput.y);
+            Vector3 movement = transform.forward * moveInput.y + transform.right * moveInput.x;
+            
             _characterController.Move(movement);
         }
         
