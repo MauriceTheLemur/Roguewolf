@@ -13,7 +13,8 @@ namespace Roguewolf
 
         public event Action<Vector2> OnMovePerformed;
         public event Action<Vector2> OnMoveCancelled;
-        public event Action<float> OnJump;
+        public event Action<float> OnJumpPerformed;
+        public event Action<float> OnJumpCancelled;
 
         public event Action<Vector2> OnLookPerformed;
         public event Action<Vector2> OnLookCancelled;
@@ -101,7 +102,16 @@ namespace Roguewolf
         private void ProcessOnJump(InputAction.CallbackContext context)
         {
             float jumpInput = context.ReadValue<float>();
-            OnJump?.Invoke(jumpInput);
+            
+            switch (context.phase)
+            {
+                case InputActionPhase.Performed:
+                    OnJumpPerformed?.Invoke(jumpInput);
+                    break;
+                case InputActionPhase.Canceled:
+                    OnJumpCancelled?.Invoke(jumpInput);
+                    break;
+            }
         }
 
     }
