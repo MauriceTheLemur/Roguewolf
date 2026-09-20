@@ -1,4 +1,3 @@
-using System;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -10,19 +9,14 @@ namespace Roguewolf
         [SerializeField] private CharacterController _characterController;
         
         [Header("Movement")]
-        [SerializeField, Min(0f)] private float _maxSpeed = 6f;
+        [SerializeField, Min(0f)] private float _maxSpeed = 1f;
         [SerializeField, Min(0f), Tooltip("Seconds to reach max speed from a standstill. 0 = instant.")]
         private float _accelerationTime = 0.15f;
         [SerializeField, Min(0f), Tooltip("Seconds to stop from max speed. 0 = instant.")]
         private float _decelerationTime = 0.10f;
-        
-        
-// m/s², derived every access. Infinity = snap, which MoveTowards handles natively.
-        private float Acceleration => _accelerationTime > 0f ? _maxSpeed / _accelerationTime : Mathf.Infinity;
-        private float Deceleration => _decelerationTime > 0f ? _maxSpeed / _decelerationTime : Mathf.Infinity;
 
-        private bool _isPlayerMove = false;
-        private Vector2 _currentMovement = Vector2.zero;
+        private bool _isPlayerMoveInputReceived = false;
+        private Vector2 _currentMovementInput = Vector2.zero;
         private Vector3 _horizontalVelocity;
         private float _verticalVelocity;
 
@@ -33,20 +27,50 @@ namespace Roguewolf
 
         private void FixedUpdate()
         {
-            if (_isPlayerMove)
-            {
-                MovePlayer(_currentMovement);
-            }
-            
+            UpdateHorizontalVelocity();
+            MovePlayer();
         }
 
-        private void MovePlayer(Vector2 moveInput)
+        /// <summary>
+        /// Steers the current velocity toward the velocity the input is asking for, moving no
+        /// further than acceleration (or deceleration) allows within this physics step.
+        /// </summary>
+        private void UpdateHorizontalVelocity()
         {
-            Vector3 movement = transform.forward * moveInput.y + transform.right * moveInput.x;
+            Vector3 inputDirection = transform.forward * _currentMovementInput.y + transform.right * _currentMovementInput.x;
+            // Clamped rather than normalized: diagonal keyboard input has a magnitude of ~1.41 and
+            // would otherwise outrun cardinal input, but a half-pressed stick should still mean
+            // half speed.
+            inputDirection = Vector3.ClampMagnitude(inputDirection, 1f);
             
-            _characterController.Move(movement);
+            Vector3 targetVelocity = inputDirection * _maxSpeed;
+
+            float acceleration = _isPlayerMoveInputReceived
+                ? GetAcceleration(_maxSpeed, _accelerationTime)
+                : GetAcceleration(_maxSpeed, _decelerationTime);
+
+            float incrementedSpeed = acceleration * Time.fixedDeltaTime;
+            
+            _horizontalVelocity =
+                Vector3.MoveTowards(_horizontalVelocity, targetVelocity, incrementedSpeed);
         }
-        
+
+        private void MovePlayer()
+        {
+            _characterController.Move(_horizontalVelocity * Time.fixedDeltaTime);
+        }
+
+        static private float GetAcceleration(float speed, float time)
+        {
+            if (time > 0)
+            {
+                return speed / time;
+            }
+            else
+            {
+                return float.PositiveInfinity;
+            }
+        }
 
         private void JumpPlayer(float jump)
         {
@@ -55,14 +79,14 @@ namespace Roguewolf
 
         private void ProcessOnMovePerformed(Vector2 moveInput)
         {
-            _isPlayerMove = true;
-            _currentMovement = moveInput;
+            _isPlayerMoveInputReceived = true;
+            _currentMovementInput = moveInput;
         }
 
         private void ProcessOnMoveCancelled(Vector2 moveInput)
         {
-            _isPlayerMove = false;
-            _currentMovement = moveInput;
+            _isPlayerMoveInputReceived = false;
+            _currentMovementInput = moveInput;
         }
         private void OnEnable()
         {
