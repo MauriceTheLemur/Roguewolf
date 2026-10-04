@@ -5,7 +5,7 @@ namespace Roguewolf.Networking
 {
     /// <summary>
     /// Server-side record for one seat at the table. Survives that player's disconnection
-    /// so their role and alive/dead status can be restored if they come back.
+    /// so their seat can be restored if they come back.
     /// This never leaves the server -- it is deliberately not an INetworkSerializable.
     /// </summary>
     public class SessionPlayerData
@@ -15,10 +15,6 @@ namespace Roguewolf.Networking
         public int Seat;
         public ulong ClientId;
         public bool IsConnected;
-
-        /// <summary>Secret state preserved across a reconnect. Never replicated wholesale.</summary>
-        public RoleId Role = RoleId.None;
-        public bool IsAlive = true;
     }
 
     /// <summary>
@@ -80,7 +76,7 @@ namespace Roguewolf.Networking
         {
             if (_playersByGuid.TryGetValue(guid, out var existing))
             {
-                // Reconnect: keep seat, role and alive state, adopt the new client id.
+                // Reconnect: keep seat, adopt the new client id.
                 _guidByClientId.Remove(existing.ClientId);
                 existing.ClientId = clientId;
                 existing.IsConnected = true;

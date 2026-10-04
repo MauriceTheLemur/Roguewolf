@@ -49,7 +49,7 @@ namespace Roguewolf.Networking
         /// <summary>
         /// Gate for players the server has never seen. Set false once a run starts so latecomers
         /// bounce, while known GUIDs can still reconnect into their existing seat.
-        /// <see cref="PhaseController"/> drives this.
+        /// The game layer drives this when a match starts and ends.
         /// </summary>
         public bool AcceptingNewPlayers { get; set; } = true;
 

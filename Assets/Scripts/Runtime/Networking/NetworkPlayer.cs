@@ -9,14 +9,11 @@ namespace Roguewolf.Networking
     /// <summary>
     /// Spawned once per connected client by the NetworkManager's player prefab.
     ///
-    /// State is split into two tiers, and that split is the whole point of this class:
-    ///   - PUBLIC  variables replicate to everyone (name, seat, alive, ready).
-    ///   - SECRET  variables use <c>NetworkVariableReadPermission.Owner</c>, so NGO only ever
-    ///             writes them to the owning client and the server. Other clients never receive
-    ///             the bytes at all, which means no amount of memory editing or packet sniffing
-    ///             on their end reveals the role.
+    /// Holds only connection-level state (name, seat, ready). Game state lives in the game layer.
     ///
-    /// Never put hidden information in a public variable and rely on the UI to hide it.
+    /// Never put hidden information in a public variable and rely on the UI to hide it --
+    /// use <c>NetworkVariableReadPermission.Owner</c> or <see cref="ServerTellOwner"/> so other
+    /// clients never receive the bytes at all.
     /// </summary>
     public class NetworkPlayer : NetworkBehaviour
     {
@@ -41,18 +38,6 @@ namespace Roguewolf.Networking
 
         public readonly NetworkVariable<bool> IsReady = new(
             false, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
-
-        public readonly NetworkVariable<bool> IsAlive = new(
-            true, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
-
-        // ------------------------------------------------------------ secret tier
-
-        /// <summary>
-        /// Replicated only to the owner and the server. This is the primitive that makes a
-        /// hidden-role game safe on a shared server.
-        /// </summary>
-        public readonly NetworkVariable<RoleId> Role = new(
-            RoleId.None, NetworkVariableReadPermission.Owner, NetworkVariableWritePermission.Server);
 
         /// <summary>Raised on the owning client when the server hands it a private message.</summary>
         public event Action<string> SecretReceived;
@@ -84,7 +69,7 @@ namespace Roguewolf.Networking
 
         /// <summary>
         /// Server-side: seed the replicated variables from the authoritative session record.
-        /// On a reconnect this is what restores the player's seat, name, role and alive state.
+        /// On a reconnect this is what restores the player's seat and name.
         /// </summary>
         void PushSessionDataToVariables()
         {
@@ -97,38 +82,10 @@ namespace Roguewolf.Networking
 
             DisplayName.Value = new FixedString32Bytes(data.PlayerName);
             Seat.Value = data.Seat;
-            IsAlive.Value = data.IsAlive;
-            Role.Value = data.Role;
             IsReady.Value = false;
         }
 
         // ------------------------------------------------------------ server API
-
-        /// <summary>Server-side: assign a role, writing through to the session record.</summary>
-        public void ServerSetRole(RoleId role)
-        {
-            if (!IsServer)
-                return;
-
-            Role.Value = role;
-
-            var data = SessionManager.Instance.GetPlayer(OwnerClientId);
-            if (data != null)
-                data.Role = role;
-        }
-
-        /// <summary>Server-side: kill or revive, writing through to the session record.</summary>
-        public void ServerSetAlive(bool alive)
-        {
-            if (!IsServer)
-                return;
-
-            IsAlive.Value = alive;
-
-            var data = SessionManager.Instance.GetPlayer(OwnerClientId);
-            if (data != null)
-                data.IsAlive = alive;
-        }
 
         /// <summary>
         /// Server-side: send a private line to this player alone -- "your fellow wolves are X and Y",
@@ -163,14 +120,11 @@ namespace Roguewolf.Networking
             IsReady.Value = ready;
         }
 
-        /// <summary>Ask the server to change this player's display name. Owner only, lobby only.</summary>
+        /// <summary>Ask the server to change this player's display name. Owner only.</summary>
         [Rpc(SendTo.Server)]
         public void RequestSetNameRpc(FixedString32Bytes newName, RpcParams rpcParams = default)
         {
             if (rpcParams.Receive.SenderClientId != OwnerClientId)
-                return;
-
-            if (PhaseController.Instance != null && PhaseController.Instance.Phase != GamePhase.Lobby)
                 return;
 
             var clean = LocalPlayerProfile.Sanitize(newName.ToString());
