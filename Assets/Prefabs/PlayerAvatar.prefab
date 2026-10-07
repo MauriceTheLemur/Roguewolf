@@ -262,6 +262,7 @@ GameObject:
   - component: {fileID: 5626614120436223977}
   - component: {fileID: 8891042733517600214}
   - component: {fileID: 5818675873860807866}
+  - component: {fileID: 9035411365381940508}
   - component: {fileID: 78574306408411158}
   - component: {fileID: 1074842566759743888}
   - component: {fileID: 6565992232577929696}
@@ -376,6 +377,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Roguewolf.Runtime::Roguewolf.Networking.NetworkPlayer
   ShowTopMostFoldoutHeaderGroup: 1
+--- !u!114 &9035411365381940508
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9140122929364127278}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5adad3e92f9f31c41a066d23f830cf66, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Roguewolf.Runtime::Roguewolf.PlayerCore
+  _config: {fileID: 11400000, guid: d6e2f715e2c06b74fbf65aeb2f782cf3, type: 2}
+  _role: {fileID: 11400000, guid: 44563ae013961264f8b52d0a93fc107d, type: 2}
 --- !u!143 &78574306408411158
 CharacterController:
   m_ObjectHideFlags: 0
@@ -419,6 +434,10 @@ MonoBehaviour:
   _maxSpeed: 3
   _accelerationTime: 0.15
   _decelerationTime: 0.1
+  _gravityAcceleration: 10
+  _terminalVelocity: 50
+  _groundedStickSpeed: 2
+  _jumpHeight: 1
 --- !u!114 &6565992232577929696
 MonoBehaviour:
   m_ObjectHideFlags: 0
